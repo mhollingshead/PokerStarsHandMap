@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel='stylesheet' type='text/css' href='styles.css'>
+        <script src='scripts.js'></script>
+    </head>
+    <body>
+      <div id="inputs">
+        <div style="width: 500px; margin: auto; padding-top: 50px; text-align: center;">
+          <b style="font-size: 30px">PokerStars</b>
+          <div style="color: grey; font-weight: 200; font-size: 20px;">
+            Hole Card Profit/Loss Map
+          </div>
+          <div style="margin-top: 50px;">
+            <div align="left" style="color: grey; font-weight: 200; margin-bottom: 5px;">
+              PokerStars Username<span style="color: red;">*</span>
+            </div>
+            <div>
+              <input id="username" type="text" style="width: 100%; border: none; background: #f2f2f2; padding: 5px; font-size: 18px; outline: none;" onkeyup="updateFile()"/>
+            </div>
+          </div>
+          <div style="margin-top: 20px;">
+            <div align="left" style="color: grey; font-weight: 200; margin-bottom: 5px;">
+              <table style="width: 100%; border: none;">
+                <tr>
+                  <td align="left" style="width: auto !important; text-align: left;">
+                    HandHistory<span style="color: red;">*</span>
+                  </td>
+                  <td align="right" style="width: auto !important; text-align: right">
+                    <img src="https://images.idgesg.net/images/article/2018/09/macos-high-sierra-folder-icon-100773103-large.jpg" style="height: 13px; margin-bottom: -2px; margin-left: 5px;"/> <span style="font-size: 13px;">PokerStars &#x25B8; </span>
+                    <img src="https://images.idgesg.net/images/article/2018/09/macos-high-sierra-folder-icon-100773103-large.jpg" style="height: 13px; margin-bottom: -2px;"/> <span style="font-size: 13px;">HandHistory &#x25B8; </span>
+                    <img src="https://images.idgesg.net/images/article/2018/09/macos-high-sierra-folder-icon-100773103-large.jpg" style="height: 13px; margin-bottom: -2px;"/> <span style="font-size: 13px;"><span id="userFile">[Your Username]</span></span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div>
+              <input id="files" type="file" accept=".txt" multiple style="width: 100%; border: none; background: #f2f2f2; padding: 5px; outline: none;"/>
+            </div>
+          </div>
+          <div style="margin-top: 30px">
+            <button onclick="readFiles();">Analyze Hands</button>
+          </div>
+        </div>
+
+      </div>
+      <div id="site">
+      <div id="content">
+        <div style="border-bottom: 1px solid #f2f2f2; width: 1100px; margin: auto; padding-bottom: 10px; margin-bottom: 20px; font-size: 22px; font-weight: 200;">
+          <span id="user" style="font-weight: 600;"></span> <span style="color: grey; font-weight: 200;">Profit/Loss by Hole Cards Over <span id="sittings"></span> Sittings (<span id="handCount"></span> Hands)</span>
+        </div>
+        <table style="width: 1100px; border: none;">
+          <tr>
+            <td style="width: 100px;"></td>
+            <td style="width: 1000px">
+              <div style="font-size: 16px; margin-bottom: 10px;">
+                <b>SUITED</b>
+              </div>
+              <table style="width: 100%; font-size: 13px; opacity: 0.5; border: none;">
+                <tr>
+                  <td>A</td>
+                  <td>K</td>
+                  <td>Q</td>
+                  <td>J</td>
+                  <td>T</td>
+                  <td>9</td>
+                  <td>8</td>
+                  <td>7</td>
+                  <td>6</td>
+                  <td>5</td>
+                  <td>4</td>
+                  <td>3</td>
+                  <td>2</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 100px;" align="right">
+              <table style="border: none;">
+                <tr>
+                  <td style="width: 60%">
+                    <div style="transform: rotate(-90deg); font-size: 18px; width: 30px; overflow: visible; transform-origin: center;">
+                      OFFSUIT
+                    </div>
+                  </td>
+                  <td style="width: 40%">
+                    <table style="width: 100%; font-size: 13px; opacity: 0.5; border: none; text-align: right" id="sideLabel">
+                        <tr><td style="text-align: right"><div class="leftLabels">A</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">K</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">Q</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">J</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">T</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">9</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">8</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">7</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">6</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">5</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">4</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">3</div></td></tr>
+                        <tr><td style="text-align: right"><div class="leftLabels">2</div></td></tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td style="width: 1000px;">
+              <div id="table"></div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div id="handDataArea" style="background: #f2f2f2; margin-top: 20px;" class="hidden">
+        <div style="width: 1100px; margin: auto;">
+          <table style="width: 100%; border: none; text-align: center;">
+            <tr>
+              <td>
+                <div class="tC" id="currentHand"></div>
+              </td>
+              <td>
+                <div style="margin-bottom: 5px;">
+                  <b style="color: grey; font-size: 12px">Running +/-</b>
+                </div>
+                <div id="run">
+
+                </div>
+              </td>
+              <td>
+                <div style="margin-bottom: 5px;">
+                  <b style="color: grey; font-size: 12px">Average +/-</b>
+                </div>
+                <div id="avg">
+
+                </div>
+              </td>
+              <td>
+                <div style="margin-bottom: 5px;">
+                  <b style="color: grey; font-size: 12px">Preflop Odds</b>
+                </div>
+                <div id="odds">
+
+                </div>
+              </td>
+              <td>
+                <div style="margin-bottom: 5px;">
+                  <b style="color: grey; font-size: 12px">Times Dealt</b>
+                </div>
+                <div id="dealt">
+
+                </div>
+              </td>
+              <td>
+                <div style="margin-bottom: 5px;">
+                  <b style="color: grey; font-size: 12px">Win %</b>
+                </div>
+                <div id="prof">
+
+                </div>
+              </td>
+              <td>
+                <div style="margin-bottom: 5px;">
+                  <b style="color: grey; font-size: 12px">Loss %</b>
+                </div>
+                <div id="loss">
+
+                </div>
+              </td>
+              <td>
+                <div style="margin-bottom: 5px;">
+                  <b style="color: grey; font-size: 12px">FPF %</b>
+                </div>
+                <div id="fpf">
+
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div style="width: 1100px; margin: auto; padding-top: 20px; margin-bottom: 50px;">
+        <table style="width: 100%; border: none; margin: auto;">
+          <tr>
+            <td style="width: 33%; padding: 20px; vertical-align: top">
+              <div class="topCard">
+                Top Earner
+              </div>
+              <div class="topDesc">
+                The hole cards that won you the most money over the given sittings.
+              </div>
+              <div class="tC" id="topEarnings">
+
+              </div>
+              <div style="margin-bottom: 20px;">
+                <table style="width: 100%; border: none; font-size: 12px;">
+                  <tr>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Running +/-</b>
+                      </div>
+                      <div id="run1">
+
+                      </div>
+                    </td>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Average +/-</b>
+                      </div>
+                      <div id="avg1">
+
+                      </div>
+                    </td>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Preflop Odds</b>
+                      </div>
+                      <div id="odd1">
+
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div id="profitArea" style="max-height: 400px; overflow: scroll;">
+
+              </div>
+            </td>
+            <td style="width: 33%; padding: 20px; vertical-align: top">
+              <div class="topCard">
+                Lucky Hand
+              </div>
+              <div class="topDesc">
+                The hole cards with the highest (profit &#xF7; pre-flop pot odds) &#215; win %.
+              </div>
+              <div class="tC" id="luckyHand">
+
+              </div>
+              <div style="margin-bottom: 20px;">
+                <table style="width: 100%; border: none; font-size: 12px;">
+                  <tr>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Running +/-</b>
+                      </div>
+                      <div id="run2">
+
+                      </div>
+                    </td>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Average +/-</b>
+                      </div>
+                      <div id="avg2">
+
+                      </div>
+                    </td>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Preflop Odds</b>
+                      </div>
+                      <div id="odd2">
+
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div id="luckyArea" style="max-height: 400px; overflow: scroll;">
+
+              </div>
+            </td>
+            <td style="width: 33%; padding: 20px; vertical-align: top">
+              <div class="topCard">
+                Most Loss
+              </div>
+              <div class="topDesc">
+                The hole cards that lost you the most money over the given sittings.
+              </div>
+              <div class="tC" id="topLoss">
+
+              </div>
+              <div style="margin-bottom: 20px;">
+                <table style="width: 100%; border: none; font-size: 12px;">
+                  <tr>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Running +/-</b>
+                      </div>
+                      <div id="run3">
+
+                      </div>
+                    </td>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Average +/-</b>
+                      </div>
+                      <div id="avg3">
+
+                      </div>
+                    </td>
+                    <td style="width: 33%">
+                      <div>
+                        <b style="color: grey;">Preflop Odds</b>
+                      </div>
+                      <div id="odd3">
+
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div id="lossArea" style="max-height: 400px; overflow: scroll;">
+
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div id="footer" style="background: #f2f2f2; padding: 20px; font-size: 13px; color: #adadad; font-weight: 200;" align="center">
+        &copy; Michael Hollingshead 2021
+      </div>
+      </div>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+    </body>
+</html>
