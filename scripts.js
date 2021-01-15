@@ -269,10 +269,59 @@ function parseSittings() {
     for (var j = 0; j < hands.length; j++) {
       var hand = hands[j];
       if (j === hands.length-1) {
+        var balance;
+        var cards;
+
+        var s1 = ": "+username;
+        var s2 = "and won ($";
+        var s3 = ")";
+
+        balance = "";
+        var tmp;
+        if (hand.split(s1)[1]) {
+          tmp = hand.split(s1)[1];
+          if (tmp.split(s2)[1]) {
+            tmp = tmp.split(s2)[1];
+            if (tmp.split(s3)[0]) {
+              balance = pSittings[pSittings.length-1].balance+(parseFloat(hand.split(s1)[1].split(s2)[1].split(s3)[0])/2);
+              console.log(balance);
+            }
+          }
+        }
+
+        s1 = username;
+        s2 = "showed [";
+        s3 = "]";
+
+        cards = "";
+
+        if (hand.split(s1)[1]) {
+          tmp = hand.split(s1)[1];
+          if (tmp.split(s2)[1]) {
+            tmp = tmp.split(s2)[1];
+            if (tmp.split(s3)[0]) {
+              cards = hand.split(s1)[1].split(s2)[1].split(s3)[0];
+              console.log(cards);
+            }
+          }
+        }
+
+        if (balance != "" && cards != "") {
+          if (cards[1] === cards[4]) {
+            cards = [(cards[0]+cards[3]+"s"), (cards[3]+cards[0]+"s")];
+          }
+          else {
+            cards = [(cards[0]+cards[3]+"o"), (cards[3]+cards[0]+"o")];
+          }
+
+          pSittings.push({"balance": parseFloat(balance), "cards": cards});
+        }
+
       }
       else {
         var balance;
         var cards;
+        var date;
 
         var s1 = username+" ($";
         var s2 = " in chips)";
@@ -291,7 +340,11 @@ function parseSittings() {
           cards = [(cards[0]+cards[3]+"o"), (cards[3]+cards[0]+"o")];
         }
 
-        pSittings.push({"balance": parseFloat(balance), "cards": cards});
+        s1 = "- ";
+        s2 = " ";
+        date = hand.split(s1)[1].split(s2)[0];
+
+        pSittings.push({"balance": parseFloat(balance), "cards": cards, "date": date});
       }
     }
     for (j = 0; j < pSittings.length; j++) {
@@ -304,7 +357,7 @@ function parseSittings() {
           var cards = hand.cards[k];
           for (var l = 0; l < data.length; l++) {
             if (data[l].hand === cards) {
-              pHands.push({"hand": cards, "pm": pm});
+              pHands.push({"hand": cards, "pm": pm, "date": hand.date, "num": 0});
               data[l].pm += pm;
               data[l].times += 1;
               if (cards[0] === cards[1]) {
@@ -315,6 +368,10 @@ function parseSittings() {
         }
       }
     }
+  }
+  pHands.sort((a, b) => (a.date > b.date) ? 1 : -1);
+  for (i = 0; i < pHands.length; i++) {
+    pHands[i].num = i;
   }
   makeTable();
 }
@@ -620,6 +677,86 @@ function makeHandData(hand) {
     document.getElementById("handDataArea").classList.toggle("hidden");
     document.getElementById("handDataArea").classList.toggle("opened");
   }
+
+  var data1 = [{"x": 0, "y": 0}];
+  var best = [{"x": 0, "y": 0}];
+  var worst = [{"x": 0, "y": 0}];
+  var bestHand = getBestHand().hand;
+  var worstHand = getWorstHand().hand;
+  var labels1 = [];
+  var last = 0;
+  for (i = 0; i < pHands.length; i++) {
+    if (pHands[i].hand === hand) {
+      data1.push({
+        "x": i,
+        "y": parseFloat((data1[data1.length-1].y+pHands[i].pm).toFixed(2))
+      });
+      last = i;
+    }
+    if (pHands[i].hand === bestHand) {
+      best.push({
+        "x": i,
+        "y": parseFloat((best[best.length-1].y+pHands[i].pm).toFixed(2))
+      });
+      last = i;
+    }
+    if (pHands[i].hand === worstHand) {
+      worst.push({
+        "x": i,
+        "y": parseFloat((worst[worst.length-1].y+pHands[i].pm).toFixed(2))
+      });
+      last = i;
+    }
+    labels1.push(i);
+  }
+  var labels = [];
+  for (i = 0; i <= last+5; i++) {
+    labels.push(i);
+  }
+  data1.push({"x": last+5, "y": data1[data1.length-1].y});
+  best.push({"x": last+5, "y": best[best.length-1].y});
+  worst.push({"x": last+5, "y": worst[worst.length-1].y});
+  document.getElementById('graphArea').innerHTML = "";
+  var canv = document.createElement('canvas');
+  canv.style.width = "1100px";
+  canv.style.height = "500px";
+  canv.id="graph";
+  document.getElementById('graphArea').appendChild(canv);
+  var ctx = document.getElementById('graph').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+            label: hand,
+            borderColor: '#000000',
+            data: data1,
+            steppedLine: true
+        },
+        {
+            label: bestHand,
+            borderColor: "#3eb03e",
+            backgroundColor: "#ffffff00",
+            data: best,
+            steppedLine: true,
+            hidden: true
+        },
+        {
+            label: worstHand,
+            borderColor: "#c43131",
+            backgroundColor: "#ffffff00",
+            data: worst,
+            steppedLine: true,
+            hidden: true
+        }
+      ]
+    },
+    options: {
+
+    }
+  });
+  console.log(myChart);
 }
 function formatPM(run) {
   if (run >= 0) {
@@ -657,4 +794,22 @@ function getWinPercent(hand) {
     }
   }
   return prof/handData.times;
+}
+function getBestHand() {
+  var hand = data[0];
+  for (var i = 0; i < data.length; i++) {
+    if (data[i].pm > hand.pm) {
+      hand = data[i];
+    }
+  }
+  return hand;
+}
+function getWorstHand() {
+  var hand = data[0];
+  for (var i = 0; i < data.length; i++) {
+    if (data[i].pm < hand.pm) {
+      hand = data[i];
+    }
+  }
+  return hand;
 }
