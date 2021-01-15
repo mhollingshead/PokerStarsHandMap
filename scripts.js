@@ -731,12 +731,14 @@ function makeHandData(hand) {
         {
             label: hand,
             borderColor: '#000000',
+            pointBackgroundColor: '#000000',
             data: data1,
             steppedLine: true
         },
         {
             label: bestHand,
             borderColor: "#3eb03e",
+            pointBackgroundColor: "#3eb03e",
             backgroundColor: "#ffffff00",
             data: best,
             steppedLine: true,
@@ -745,6 +747,7 @@ function makeHandData(hand) {
         {
             label: worstHand,
             borderColor: "#c43131",
+            pointBackgroundColor: "#c43131",
             backgroundColor: "#ffffff00",
             data: worst,
             steppedLine: true,
